@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/",
+    "test:unit": "node --test tests/unit",
+    "test:integration": "node --test tests/integration",
     "start": "node --watch src/index.js"
   },
   "keywords": [],

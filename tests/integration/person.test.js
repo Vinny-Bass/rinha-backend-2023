@@ -70,6 +70,14 @@ test('Person Integration Test Suite', async(t) => {
         assert.strictEqual(request.status, 400, 'Code for invalid values should be 400');
     });
 
+    await t.test('it should return not found on GET without ID', async(t) => {
+        const request = await fetch(`${testServerAddress}`, {
+            method: 'GET'
+        }).catch();
+
+        assert.strictEqual(request.status, 404, 'Should return 404 for get person without ID on path parameter');
+    });
+
     await t.test('it should get a person by id', async(t) => {
         const data = {
             "id": personID,

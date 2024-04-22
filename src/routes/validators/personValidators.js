@@ -1,18 +1,14 @@
-import { PERSON_CREATION_VALIDATION_ERR, CreatePersonValidationError } from "../../errors/errors.js";
+import { GetPersonValidationError, CreatePersonValidationError } from "../../errors/errors.js";
 import { VALID_UUID_REGEX } from "../../utils/regex_utils.js";
 import { DEFAULT_HEADERS } from "../../utils/server_utils.js";
 
 export function validatePersonByIdGET(id, res)
 {
-    if (!id) {
-        res.writeHead(400, DEFAULT_HEADERS);
-        res.end('Person ID not provided');
-    }
+    if (!id)
+        throw new GetPersonValidationError('No ID founded');
 
-    if (!VALID_UUID_REGEX.test(id)) {
-        res.writeHead(400, DEFAULT_HEADERS);
-        res.end(`Invalid ID ${id}`);
-    }
+    if (!VALID_UUID_REGEX.test(id))
+        throw new GetPersonValidationError('Invalid ID');
 }
 
 function isValidDate(dateString) {
@@ -41,15 +37,14 @@ export function validatePersonPost(person, res) {
     const { nickname, name, birth, stack } = person;
     
     if (!nickname || typeof nickname != "string" || nickname.length > 32)
-        throw new CreatePersonValidationError({ code: PERSON_CREATION_VALIDATION_ERR, message: 'Invalid nickname' })
+        throw new CreatePersonValidationError('Invalid nickname')
 
-    if (!name || typeof name != "string" || name.length > 100){
-        throw new CreatePersonValidationError({ code: PERSON_CREATION_VALIDATION_ERR, message: 'Invalid name' })
-    }
+    if (!name || typeof name != "string" || name.length > 100)
+        throw new CreatePersonValidationError('Invalid name')
 
     if (!birth || typeof birth != "string" || !isValidDate(birth))
-        throw new CreatePersonValidationError({ code: PERSON_CREATION_VALIDATION_ERR, message: 'Invalid birth' })
+        throw new CreatePersonValidationError('Invalid birth')
 
     if (stack && (!Array.isArray(stack) || !areAllStrings(stack)))
-        throw new CreatePersonValidationError({ code: PERSON_CREATION_VALIDATION_ERR, message: 'Invalid stack'})
+        throw new CreatePersonValidationError('Invalid stack')
 }

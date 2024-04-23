@@ -6,7 +6,7 @@ export default class PG {
         this.URL = process.env.DB_URL || 'postgres://postgres:123456578@localhost:5432/postgres';
         this.pool = new pg.Pool({
             connectionString: this.URL,
-            max: (Number(process.env.DB_POOL) || 200),
+            max: (Number(process.env.DB_POOL) || 35),
             idleTimeoutMillis: 0,
             connectionTimeoutMillis: 10000
         });

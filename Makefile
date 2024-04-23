@@ -9,6 +9,12 @@ start-macos:
 start-linux:
 	@cd $(LINUX_INFRA) && docker-compose up -d
 
+build-macos:
+	@cd $(MAC_OS_INFRA) && docker-compose up --build -d
+
+build-linux:
+	@cd $(LINUX_INFRA) && docker-compose up --build -d
+
 stop-macos:
 	@cd $(MAC_OS_INFRA) && docker-compose down
 

@@ -206,7 +206,7 @@ If the query string t is not provided, the response should have a 400 - bad requ
 
 ##### Count of People - Special Endpoint
 
-`GET /people-count`
+`GET /person-count`
 
 This is a special endpoint that WILL NOT BE TESTED (so don't worry about its performance) and should return in plain text the number of people records and any status code in the 2XX range. It will be used to validate the number of successful creation requests during the stress test, so do not use cache or any other form of eventual consistency storage.
 

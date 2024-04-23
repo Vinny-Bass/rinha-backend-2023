@@ -36,15 +36,23 @@ export function validatePersonPost(person, res) {
 
     const { nickname, name, birth, stack } = person;
     
-    if (!nickname || typeof nickname != "string" || nickname.length > 32)
+    if (!nickname || typeof nickname != "string" || nickname.length > 32) {
+        console.log({ validationErr: 'Invalid nickname', person })
         throw new CreatePersonValidationError('Invalid nickname')
+    }
 
-    if (!name || typeof name != "string" || name.length > 100)
+    if (!name || typeof name != "string" || name.length > 100) {
+        console.log({ validationErr: 'Invalid name', person })
         throw new CreatePersonValidationError('Invalid name')
+    }
 
-    if (!birth || typeof birth != "string" || !isValidDate(birth))
+    if (!birth || typeof birth != "string" || !isValidDate(birth)) {
+        console.log({ validationErr: 'Invalid birth', person })
         throw new CreatePersonValidationError('Invalid birth')
+    }
 
-    if (stack && (!Array.isArray(stack) || !areAllStrings(stack)))
+    if (stack && (!Array.isArray(stack) || !areAllStrings(stack))) {
+        console.log({ validationErr: 'Invalid stack', person })
         throw new CreatePersonValidationError('Invalid stack')
+    }
 }

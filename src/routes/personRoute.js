@@ -38,7 +38,7 @@ const routes = ({ personService }) => ({
         },
         GET: async (req, res) => {
             const { url } = req;
-            const { pathname } = parse(url, true);
+            const { pathname, query } = parse(url, true);
             const params = pathname.split('/');
 
             if (params.length > 2) {
@@ -60,9 +60,33 @@ const routes = ({ personService }) => ({
                     res.writeHead(500, DEFAULT_HEADERS);
                     return res.end();
                 }
+            } else {
+                try {
+                    const term = query['t'];
+                    if (term) {
+                        const people = await personService.findByTerm(term);
+                        res.write(JSON.stringify(people));
+                        return res.end();
+                    } 
+                } catch (err) {
+                    res.writeHead(500, DEFAULT_HEADERS);
+                    return res.end();
+                }
             }
-            res.writeHead(404, DEFAULT_HEADERS);
+            res.writeHead(400, DEFAULT_HEADERS);
             return res.end()
+        }
+    },
+    'person-count': {
+        GET: async (req, res) => {
+            try {
+                const count = await personService.count();
+                res.write(JSON.stringify(count));
+                return res.end();
+            } catch (err) {
+                res.writeHead(500, DEFAULT_HEADERS);
+                return res.end();
+            }
         }
     }
 });

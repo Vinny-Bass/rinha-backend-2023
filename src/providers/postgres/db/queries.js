@@ -17,7 +17,9 @@ const CREATE_TABLES_QUERY = `
         searchable TEXT GENERATED ALWAYS AS (generate_searchable(nickname, name, stack)) STORED
     );
 
-    CREATE INDEX IF NOT EXISTS idx_searchable ON person USING GIN (searchable gin_trgm_ops);
+    CREATE INDEX IF NOT EXISTS idx_searchable ON public.person USING gist (searchable public.gist_trgm_ops (siglen='64'));
+
+    CREATE UNIQUE INDEX IF NOT EXISTS person_nickname_index ON public.person USING btree (nickname);
 `
 
 export {

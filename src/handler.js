@@ -22,8 +22,8 @@ async function handler(req, res) {
     const { url, method } = req;
     let { pathname } = parse(url, true);
     pathname = pathname.split('/')[1];
-    const route = allRoutes[pathname][method] || allRoutes.default;
-
+    const route = allRoutes[pathname] ? allRoutes[pathname][method] : allRoutes.default;
+    
     await route(req, res);
 }
 

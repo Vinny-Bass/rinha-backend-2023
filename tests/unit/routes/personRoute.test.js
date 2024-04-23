@@ -4,7 +4,6 @@ import assert from 'node:assert';
 import { routes } from '../../../src/routes/personRoute.js';
 import { CreatePersonValidationError, PG_DUPLICATE_ENTRY_ERR_CODE } from '../../../src/errors/errors.js';
 import { CORRECT_LOCATION_REGEX, VALID_UUID_REGEX } from '../../../src/utils/regex_utils.js';
-import { DEFAULT_HEADERS } from '../../../src/utils/server_utils.js';
 
 test('Person routes - GET', async (t) => {
     await t.test('GET - it not should call the database if no id is provided', async () => {
@@ -55,6 +54,71 @@ test('Person routes - GET', async (t) => {
         await endpoints.person.GET(req, res);
         assert.strictEqual(mockFindById.mock.callCount(), 1, 'Should have called findById only once');
         assert.strictEqual(mockFindById.mock.calls[0].arguments[0], mockID, `Should have called findById with ${mockID}`);
+        assert.strictEqual(res.write.mock.callCount(), 1, 'Should have called the write function');
+        assert.deepStrictEqual(res.write.mock.calls[0].arguments[0], JSON.stringify(mockData), 'Should have called the write function with the correct params');
+        assert.strictEqual(res.end.mock.callCount(), 1, 'Should have called res.end only once');
+    })
+
+    await t.test('GET - it should call findByTerm is the queryString is correct', async () => {
+        const mockID = 'c26586a9-872a-490d-a2b8-31c5ff781609';
+        const mockTerm = 'Node';
+        const mockData = [{
+            "id": mockID,
+            "nickname" : "josé",
+            "name" : "José Roberto",
+            "birth" : "2000-10-01",
+            "stack" : ["C#", "Node", "Oracle"]
+        }];
+
+        const mockFindByTerm = mock.fn(async (id) => mockData);
+        const mockFindById = mock.fn(async (id) => mockData);
+        const personServiceStub = {
+            findByTerm: mockFindByTerm,
+            findById: mockFindById
+        };
+
+        const endpoints = routes({
+            personService: personServiceStub
+        });
+
+        const req = { url: `/person?t=${mockTerm}` };
+        const res = {
+            write: mock.fn((item) => null),
+            end: mock.fn(() => null)
+        };
+        await endpoints.person.GET(req, res);
+        assert.strictEqual(mockFindById.mock.callCount(), 0, 'Should not have called findById');
+        assert.strictEqual(mockFindByTerm.mock.callCount(), 1, 'Should have called findByTerm only once');
+        assert.strictEqual(mockFindByTerm.mock.calls[0].arguments[0], mockTerm, `Should have called findByTerm with ${mockTerm}`);
+        assert.strictEqual(res.write.mock.callCount(), 1, 'Should have called the write function');
+        assert.deepStrictEqual(res.write.mock.calls[0].arguments[0], JSON.stringify(mockData), 'Should have called the write function with the correct params');
+        assert.strictEqual(res.end.mock.callCount(), 1, 'Should have called res.end only once');
+    })
+
+    await t.test('GET - it should return 200 even if there is no matches', async () => {
+        const mockTerm = 'Node';
+        const mockData = [];
+
+        const mockFindByTerm = mock.fn(async (id) => mockData);
+        const mockFindById = mock.fn(async (id) => mockData);
+        const personServiceStub = {
+            findByTerm: mockFindByTerm,
+            findById: mockFindById
+        };
+
+        const endpoints = routes({
+            personService: personServiceStub
+        });
+
+        const req = { url: `/person?t=${mockTerm}` };
+        const res = {
+            write: mock.fn((item) => null),
+            end: mock.fn(() => null)
+        };
+        await endpoints.person.GET(req, res);
+        assert.strictEqual(mockFindById.mock.callCount(), 0, 'Should not have called findById');
+        assert.strictEqual(mockFindByTerm.mock.callCount(), 1, 'Should have called findByTerm only once');
+        assert.strictEqual(mockFindByTerm.mock.calls[0].arguments[0], mockTerm, `Should have called findByTerm with ${mockTerm}`);
         assert.strictEqual(res.write.mock.callCount(), 1, 'Should have called the write function');
         assert.deepStrictEqual(res.write.mock.calls[0].arguments[0], JSON.stringify(mockData), 'Should have called the write function with the correct params');
         assert.strictEqual(res.end.mock.callCount(), 1, 'Should have called res.end only once');

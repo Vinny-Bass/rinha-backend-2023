@@ -9,9 +9,9 @@ test('Person Integration Test Suite', async(t) => {
     const testPort = 9090;
     
     process.env.HTTP_PORT = testPort;
-    const { server } = await import('../../src/index.js');
+    const { server } = await import('../../src/server.js');
 
-    const testServerAddress = `http://localhost:${testPort}/person`;
+    const testServerAddress = `http://localhost:${testPort}`;
     let personID = "";
     const personNickname = "integration-test-" + randomUUID().split('-')[0];
 
@@ -23,7 +23,7 @@ test('Person Integration Test Suite', async(t) => {
             "stack" : ["C#", "Node", "Oracle"]
         }
 
-        const request = await fetch(testServerAddress, {
+        const request = await fetch(`${testServerAddress}/person`, {
             method: 'POST',
             body: JSON.stringify(data)
         }).catch();
@@ -46,7 +46,7 @@ test('Person Integration Test Suite', async(t) => {
             "stack" : ["C#", "Node", "Oracle"]
         }
 
-        const request = await fetch(testServerAddress, {
+        const request = await fetch(`${testServerAddress}/person`, {
             method: 'POST',
             body: JSON.stringify(data)
         }).catch();
@@ -62,7 +62,7 @@ test('Person Integration Test Suite', async(t) => {
             "stack" : ["C#", "Node", "Oracle"]
         }
 
-        const request = await fetch(testServerAddress, {
+        const request = await fetch(`${testServerAddress}/person`, {
             method: 'POST',
             body: JSON.stringify(data)
         }).catch();
@@ -71,11 +71,11 @@ test('Person Integration Test Suite', async(t) => {
     });
 
     await t.test('it should return not found on GET without ID', async(t) => {
-        const request = await fetch(`${testServerAddress}`, {
+        const request = await fetch(`${testServerAddress}/person`, {
             method: 'GET'
         }).catch();
 
-        assert.strictEqual(request.status, 404, 'Should return 404 for get person without ID on path parameter');
+        assert.strictEqual(request.status, 400, 'Should return 400 for get person without ID on path parameter');
     });
 
     await t.test('it should get a person by id', async(t) => {
@@ -87,7 +87,7 @@ test('Person Integration Test Suite', async(t) => {
             "stack" : ["C#", "Node", "Oracle"]
         }
 
-        const request = await fetch(`${testServerAddress}/${personID}`, {
+        const request = await fetch(`${testServerAddress}/person/${personID}`, {
             method: 'GET'
         }).catch();
 
@@ -97,11 +97,21 @@ test('Person Integration Test Suite', async(t) => {
     });
 
     await t.test('it should return 400 for an invalid or inexistent ID', async(t) => {
-        const request = await fetch(`${testServerAddress}/invalid`, {
+        const request = await fetch(`${testServerAddress}/person/invalid`, {
             method: 'GET'
         }).catch();
 
         assert.strictEqual(request.status, 400, 'Should return 400 for bad request');
+    });
+
+    await t.test('it should get the count of persons', async(t) => {
+        const request = await fetch(`${testServerAddress}/person-count`, {
+            method: 'GET'
+        }).catch();
+
+        assert.strictEqual(request.status, 200, 'Should return 200 for get person success');
+        const count = await request.json();
+        assert.match(count, /^-?\d+$/, 'Should return a count number');
     });
 
     closeDB();
